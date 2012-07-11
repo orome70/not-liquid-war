@@ -4,4 +4,5 @@
     <string name="runLabel">Simulation non optimisée</string>
     <string name="resLabel">Le temps de la simulation : --</string>
     <string name="runLabel2">Simulation optimisée</string>
+    <string name="appDescripton">This applications is currently a test of the algorithms behind LiquidWar</string>
 </resources>

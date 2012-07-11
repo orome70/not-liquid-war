@@ -7,7 +7,7 @@
 
     <application android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" android:description="@string/appDescripton">
         <activity android:label="@string/app_name" android:name="org.orome.liquidwar.MainApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

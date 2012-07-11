@@ -33,27 +33,54 @@ public class TesteurOptim {
 	 * @param args
 	 */
 	
-	//static final int sizeX=2000,sizeY=2000, nbPoints=10000;
-	static final int sizeX=500,sizeY=500, nbPoints=10000;
+	//static final int sizeX=2000,sizeY=2000, maxPoints=10000;
+	static final int sizeX=500,sizeY=500, maxPoints=10000;
 	
-	boolean [][] matrix; /* définit les points déjà calculés : false := à calculer */
-	int [][] distances; /* contient les distances de chacun des points de la grille */
-	int origX,origY ; /* coordonnées de la position initiale : distances[origX][origY]=0 */
-	//List<Coords> current, next;
-	int [][] current, next, tempo; // Plutôt qu'une liste de coords, un tableau, ligne 0 -> x, ligne 1 -> y
-	// Par convention, on posera -1, -1 dans la dernière case utilisée
+	boolean [][] matrix, matFighters; 
+	/* 
+	 * matrix: coordinates which have already been calculated: *false* -> to compute
+	 * matFighers: positions where fighters are: *true* -> there is a fighter   
+	 * 
+	 * */
+	int [][] distances; 
+	/* 
+	 * distances: length of the shortest path from a given position to the target
+	 *  
+	 * */
+	int origX,origY ; 
 	/*
-	 * current contient les points dont la distance a été calculée, dont les successeurs vont être calculés (étape "n")
-	 * 
-	 * next contient les éléments dont la distance est en train d'être calculés mais pour l'étape suivante (étape "n+1")
-	 * 
+	 * Coordinates of the target
+	 * In particular: distances[origX][origY]=0
+	 *  
 	 */
-	int curDist; /* distance courante (étape "n")*/
-	int totalCalc; /* Nombre total de points à calculer */
+	int [][] current, next, tempo;
+	/*
+	 * Each of these are are int [maxPoint][2] arrays
+	 * current: contains the coordinates which have been updated in distances
+	 * next: contains the coordinates which will be computed on the next "turn"
+	 * tempo: enable to switch between current and next :-P
+	 * 
+	 * line 0 -> x
+	 * line 1 -> y
+	 * After the last value array[last][0]=array[last][1]=-1
+	 */
+	int curDist, totalCalc, totalFighters; 
+	/* 
+	 * curDist: Current length (step "n")
+	 * totalCalc: number of points in the map
+	 * totalFighters: number of fighters in the map 
+	 * 
+	 * */
+
 
 	public TesteurOptim(int x, int y){
-		origX= x+1; origY=y+1; /* Dans la matrice tout est décalé de 1 */
+		origX= x+1; origY=y+1; 
+		/* 
+		 * In each matrix everything is shifted by 1
+		 * 
+		 * */
 		this.reset();
+		
 	}
 	public TesteurOptim(){
 		this(0,0);
@@ -62,35 +89,36 @@ public class TesteurOptim {
 	public void reset(){
 		totalCalc = sizeX*sizeY;
 		matrix = new boolean[sizeX+2][sizeY+2];
-		/* Pour des questions de simplicité, la matrice est plongée dans une plus grande les ligne/colonne 0 et size+1 sont positionnées à true */
+		/*
+		 * In order to simplify computations (arround the borders) each matrix is embedded into a 
+		 * larger one. Lines/row at 0 and size+1. In matrix they all have value *true*. 
+		 */
 		for(int i =0; i<sizeX+1; i++)matrix[i][0]=matrix[i][sizeY+1]=true;
 		for(int i =0; i<sizeY+1; i++)matrix[0][i]=matrix[sizeX+1][i]=true;
-		//System.out.println("Matrix : "+matrix[0][0]);
 		distances = new int[sizeX+2][sizeY+2];
-		/* Les valeurs des ligne/colonne 0 et size+1 sont sans importance */
-		//System.out.println("Matrix : "+distances[0][0]);
+		this.matFighters = new boolean[sizeX+2][sizeY+2];
+		/* For these two matrices, values in line/row 0 and size+1 are not relevant */
 		matrix[origX][origY]=true;
 		distances[origX][origY]=0;
-		current = new int[nbPoints][2];
+		current = new int[maxPoints][2];
 		current[0][0]=origX;
 		current[0][1]=origY;
 		for(int ll=0; ll<2; ll++)current[1][ll]=-1;
 		//current.add(orig);
 		curDist=0; 
 		//Construction de next, seulement dans le constructeur
-		next = new int[nbPoints][2];
+		next = new int[maxPoints][2];
 	}
-	/*
-	 * Cette fonction réalise la mise à jour de la matrice distances
-	 * 
-	 * en partant du principe que current contient la position initiale, 
-	 * et que les deux matrices sont convenablement initialisées.  
-	 * 
-	 */
 	public void update(){
 		/*
-		 * De façon provisoire, on va supposer qu'on va calcuer la distance 
-		 * pour *tous* les points de l'image, donc sizeX*sizey 
+		 * This function updates/computes the matrix *distances*
+		 * and should perform the movement of the fighters.
+		 *
+		 * It assumes that origX and origY contains the position of the target
+		 * And that matrix is *false* everywhere computation is needed.
+		 * 
+		 * At the moment we assume that computation should be performed at all 
+		 * position of the map (totalCalc).
 		 */
 		int courCalc=1, i, j; /* On a déjà calculé la distance de l'origine */
 		int indexCur,indexNext, curX, curY;
