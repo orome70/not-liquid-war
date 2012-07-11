@@ -53,12 +53,13 @@ public class TesteurOptim {
 	 * In particular: distances[origX][origY]=0
 	 *  
 	 */
-	int [][] current, next, tempo;
+	int [][] current, next, tempo, fighters;
 	/*
 	 * Each of these are are int [maxPoint][2] arrays
 	 * current: contains the coordinates which have been updated in distances
 	 * next: contains the coordinates which will be computed on the next "turn"
 	 * tempo: enable to switch between current and next :-P
+	 * fighters: contains the coordinates of encountered fighters
 	 * 
 	 * line 0 -> x
 	 * line 1 -> y
@@ -73,17 +74,22 @@ public class TesteurOptim {
 	 * */
 
 
-	public TesteurOptim(int x, int y){
+	public TesteurOptim(int x, int y,int fighters){
 		origX= x+1; origY=y+1; 
 		/* 
 		 * In each matrix everything is shifted by 1
 		 * 
 		 * */
 		this.reset();
+		this.totalFighters=fighters;
+		this.addFighters(fighters);
 		
 	}
+	public TesteurOptim(int fighters){
+		this(0,0,fighters);
+	}
 	public TesteurOptim(){
-		this(0,0);
+		this(10);
 	}
 	
 	public void reset(){
@@ -183,19 +189,77 @@ public class TesteurOptim {
 			}			
 		}
 	}
-	
-	public void display (int x1, int y1, int x2, int y2){
+
+	public void addFighters(int fight){
+		/*
+		 * We add fighters on the matFighters (one by one)
+		 * 
+		 * Then each time a position is added in "next", whenever 
+		 * it contains a fighter is will be added to fighters
+		 * 
+		 * Currently we add fighters from (250,250) one (half-)line at a time
+		 */
+		
+		int k=250;
+		for(int i=k; i<sizeX && fight>0; i++){
+			for(int j=k; j<sizeY&&fight>0; j++){
+				this.matFighters[i][j]=true;
+				fight--;
+			}
+		}
+	}
+	private void moveFighter(int coX, int coY){
+		/*
+		 * 
+		 * Computes the move of matFighters [coX][coY]
+		 * 
+		 * If there is an empty spot "at same distance" it moves
+		 * (last empty spot)
+		 * If there is an empty spot "at smaller distance" it moves 
+		 * with higher priority (first fit)
+		 * 
+		 */
+		int i,j,movX=-1,movY=-1,distOrig=this.distances[coX][coY];
+		i=-1;
+		while (i<2){
+			j=-1;
+			while (j<2){
+				if (matrix[coX+i][coY+j] && !this.matFighters[coX+i][coY+j] && (this.distances[coX+i][coY+j]<=distOrig))
+				{
+					/* computed && empty && dist <= */
+					movX=coX+i; movY=coY+j;
+					if (this.distances[movX][movY]<distOrig)i=j=2;
+					/* leave the loops as soon as smaller distance is found*/
+				}
+				/* no else */
+				if (i==0)j++;/* To avoid i==j==0 */
+				j++;
+			}
+			i++;
+		}
+		if (movX!=-1){
+			/* There is an update */
+			this.matFighters[movX][movY]=true;
+			this.matFighters[coX][coY]=false;
+		}
+
+	}
+	public String display (int x1, int y1, int x2, int y2){
+		String disRes="";
 		if (x1<0) x1=0;
 		if (y1<0) y1=0;
 		if (x2>(sizeX+2)) x2=sizeX+2;
 		if (y2>(sizeY+2)) y2=sizeY+2;
 		for(int xx=x1; xx<x2; xx++){
 			for(int yy=y1; yy<y2; yy++){
-				System.out.print(distances[xx][yy]+" ");
+				if (this.matFighters[xx][yy])
+					disRes+="*"+" ";
+				else disRes+=distances[xx][yy]+" ";
 			}			
-			System.out.println();
+			disRes+="\n";
 		}
-		System.out.println();
+		disRes+="\n";
+		return disRes;
 	}
 	/*
 	 * 
@@ -216,10 +280,10 @@ public class TesteurOptim {
 
 	public static void main(String[] args) {
 		/*
-		 * Pour être utilisé dans une console
+		 * Might be used in console mode.
 		 * 
 		 */
-		TesteurOptim tt = new TesteurOptim(5,5);
+		TesteurOptim tt = new TesteurOptim(5,5,0);
 		System.out.println("Début \n");
 		long timeNow = System.currentTimeMillis();
 		for(int k=0;k<100;k++){
@@ -232,8 +296,8 @@ public class TesteurOptim {
 		tt.obstacle(8, 8, 10, 10);
 		tt.update();
 		System.out.println("Temps total : "+((timeNow2-timeNow)/1000.0)+" secondes\n");
-		tt.display(0, 0,10,10);
-		tt.display(5,5,15,15);
+		System.out.print(tt.display(0, 0,10,10));
+		System.out.print(tt.display(5,5,15,15));
 		//tt.display(10, 10,20,20);
 		//tt.display(310, 310,320,320);
 		tt.display(495,495, 510,510);

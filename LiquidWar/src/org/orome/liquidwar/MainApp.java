@@ -50,7 +50,7 @@ public class MainApp extends Activity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
     	tt = new Testeur(5,5);
-    	tt2 = new TesteurOptim(5,5);
+    	tt2 = new TesteurOptim(5,5,10);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         final TextView textRes = (TextView)findViewById(R.id.textView2);
