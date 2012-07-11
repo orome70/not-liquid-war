@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="contentLabel1">Actuellement l\'appli est uniquement un support pour tester</string>
+    <string name="contentLabel0">Grr ça marche ???</string>
+</resources>

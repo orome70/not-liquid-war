@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">LiquidWar</string>
+    <string name="greeting">Pour l\'instant il s\'agit simplement de réaliser quelques tests de performance !</string>
+    <string name="runLabel">Simulation non optimisée</string>
+    <string name="resLabel">Le temps de la simulation : --</string>
+    <string name="runLabel2">Simulation optimisée</string>
+</resources>
